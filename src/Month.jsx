@@ -189,6 +189,8 @@ let MonthView = React.createClass({
       onSelectSlot={onSelectSlot}
       container={() => findDOMNode(this)}
       selectable={this.props.selectable}
+      row={row}
+      dayPropGetter={this.props.dayPropGetter}
       ref={r => this._bgRows[idx] = r}
     />
     )
@@ -232,7 +234,7 @@ let MonthView = React.createClass({
   _dates(row) {
     return row.map((day, colIdx) => {
       var offRange = dates.month(day) !== dates.month(this.props.date);
-
+      var dayProps = this._getDayProps(this.props.dayPropGetter, row, colIdx)
       return (
         <div
           key={'header_' + colIdx}
@@ -243,12 +245,23 @@ let MonthView = React.createClass({
             'rbc-current': dates.eq(day, this.props.date, 'day')
           })}
         >
-          <a href='#' onClick={this._dateClick.bind(null, day)}>
+          <a href='#' onClick={this._dateClick.bind(null, day)} className="rbc-date-cell-day">
             { localizer.format(day, this.props.dateFormat, this.props.culture) }
           </a>
+          <p key={'date-cell-day-header_' + colIdx}
+             className="rbc-date-cell-header">{dayProps.header}</p>
+          <p key={'date-cell-day-description_' + colIdx}
+             className="rbc-date-cell-description">{dayProps.description}</p>
         </div>
       )
     })
+  },
+  
+  _getDayProps(dayPropGetter, row, i){
+    if(dayPropGetter){
+      return dayPropGetter(row[i]);
+    }
+    return {};
   },
 
   _headers(row, format, culture) {
